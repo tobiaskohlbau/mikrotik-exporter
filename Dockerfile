@@ -1,10 +1,14 @@
+FROM golang:1.11 AS build
+
+WORKDIR /app
+COPY . /app/
+RUN CGO_ENABLED=0 go build
+
 FROM alpine:3.6
-
+ 
 EXPOSE 9436
-
-COPY scripts/start.sh /app/
-COPY dist/mikrotik-exporter_linux_amd64 /app/
-
-RUN chmod 755 /app/*
-
-ENTRYPOINT ["/app/start.sh"]
+ 
+COPY --from=build /app/mikrotik-exporter /
+ 
+ENTRYPOINT ["/mikrotik-exporter"]
+CMD ["-config-file", "/cfg/config.yml"]
